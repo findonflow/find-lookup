@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/findonflow/find-lookup/api"
+	handler "github.com/findonflow/find-lookup/api"
 )
 
 func main() {
-	http.HandleFunc("/", api.Handler)
+	http.HandleFunc("/", handler.Handler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
