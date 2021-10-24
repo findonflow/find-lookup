@@ -2,10 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -23,19 +23,26 @@ func respond(w http.ResponseWriter, r *http.Request, body []byte, err error) {
 
 // Handler responds with the IP address of the request
 func Handler(w http.ResponseWriter, r *http.Request) {
-	reply := strings.TrimPrefix(r.URL.Path, "/")
+	// if only one expected
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		respond(w, r, []byte{}, errors.New("Specify name query string"))
+		return
+	}
 
-	url := fmt.Sprintf(`https://prod-test-net-dashboard-api.azurewebsites.net/api/company/04bd44ea-0ff1-44be-a5a0-e502802c56d8/search?eventType=A.85f0d6217184009b.FIND.Register&name="%s"`, reply)
+	url := fmt.Sprintf(`https://prod-test-net-dashboard-api.azurewebsites.net/api/company/04bd44ea-0ff1-44be-a5a0-e502802c56d8/search?eventType=A.85f0d6217184009b.FIND.Register&name="%s"`, name)
 
 	resp, err := http.Get(url)
 	if err != nil {
 		respond(w, r, []byte{}, err)
+		return
 	}
 	defer resp.Body.Close()
 
 	var body []Graffle
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		respond(w, r, []byte{}, err)
+		return
 	}
 
 	output := ""
