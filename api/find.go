@@ -1,62 +1,60 @@
 package handler
 
 import (
+	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
-
-func respond(w http.ResponseWriter, r *http.Request, body []byte, err error) {
-
-	w.Header().Set("Content-Type", "application/json")
-	switch err {
-	case nil:
-		w.Write(body)
-	default:
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
 
 // Handler responds with the IP address of the request
 func Handler(w http.ResponseWriter, r *http.Request) {
 	// if only one expected
 	name := r.URL.Query().Get("name")
 	if name == "" {
-		respond(w, r, []byte{}, errors.New("Specify name query string"))
+		http.Error(w, "Specify name query string", http.StatusInternalServerError)
 		return
 	}
+
+	if isValidAddress(name) {
+		w.Write([]byte(name))
+		return
+	}
+
+	name = strings.TrimSuffix(name, ".find")
 
 	url := fmt.Sprintf(`https://prod-test-net-dashboard-api.azurewebsites.net/api/company/04bd44ea-0ff1-44be-a5a0-e502802c56d8/search?eventType=A.85f0d6217184009b.FIND.Register&name="%s"`, name)
 
 	resp, err := http.Get(url)
 	if err != nil {
-		respond(w, r, []byte{}, err)
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
 	var body []Graffle
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
-		respond(w, r, []byte{}, err)
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Cache-Control", "s-maxage=2, stale-while-revalidate")
 	output := ""
 	if len(body) != 0 {
 
 		now := time.Now().Unix()
 		if now <= int64(body[0].BlockEventData.ValidUntil) {
 			output = body[0].BlockEventData.Owner
+			w.Write([]byte(output))
+			return
 		}
 	}
-
-	result, err := json.Marshal(output)
-
-	respond(w, r, result, err)
+	http.Error(w, fmt.Sprintf("Cannot find %s", name), http.StatusNotFound)
 }
 
 type Graffle struct {
@@ -70,4 +68,13 @@ type Graffle struct {
 	EventDate         time.Time `json:"eventDate"`
 	FlowEventID       string    `json:"flowEventId"`
 	FlowTransactionID string    `json:"flowTransactionId"`
+}
+
+func isValidAddress(h string) bool {
+	trimmed := strings.TrimPrefix(h, "0x")
+	if len(trimmed)%2 == 1 {
+		trimmed = "0" + trimmed
+	}
+	_, err := hex.DecodeString(trimmed)
+	return err == nil
 }

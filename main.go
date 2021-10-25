@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	handler "github.com/findonflow/find-lookup/api"
@@ -9,5 +8,5 @@ import (
 
 func main() {
 	http.HandleFunc("/", handler.Handler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.ListenAndServe(":8080", nil)
 }
