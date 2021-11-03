@@ -26,7 +26,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	name = strings.TrimSuffix(name, ".find")
 
-	url := fmt.Sprintf(`https://prod-test-net-dashboard-api.azurewebsites.net/api/company/04bd44ea-0ff1-44be-a5a0-e502802c56d8/search?eventType=A.85f0d6217184009b.FIND.Register&name="%s"`, name)
+	url := fmt.Sprintf(`https://prod-test-net-dashboard-api.azurewebsites.net/api/company/04bd44ea-0ff1-44be-a5a0-e502802c56d8/search?eventType=A.6f265aa45d8b4875.FIND.Register&name="%s"`, name)
 
 	resp, err := http.Get(url)
 	if err != nil {
