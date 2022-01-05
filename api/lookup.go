@@ -68,7 +68,7 @@ pub fun main(address: Address) : String?{
 	}
 	return name
 }
-`).Args(of.Arguments().String(address)).RunReturns()
+`).Args(of.Arguments().RawAccount(address)).RunReturns()
 
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", address, err), http.StatusNotFound)
