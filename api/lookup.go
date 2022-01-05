@@ -3,7 +3,9 @@ package handler
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/bjartek/overflow/overflow"
@@ -11,6 +13,13 @@ import (
 
 // Handler responds with the IP address of the request
 func Handler(w http.ResponseWriter, r *http.Request) {
+
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(path)
+
 	// if only one expected
 	name := r.URL.Query().Get("name")
 	if name == "" {
@@ -24,8 +33,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	name = strings.TrimSuffix(name, ".find")
-
-	of := overflow.NewOverflowMainnet().Config("flow.json").Start()
+	of := overflow.NewOverflowMainnet().Config("../flow.json").Start()
 
 	value, err := of.Script(`
 import FIND from 0x09a86f2493ce2e9d
