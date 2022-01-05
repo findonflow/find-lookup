@@ -3,10 +3,7 @@ package handler
 import (
 	"encoding/hex"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/bjartek/overflow/overflow"
@@ -14,25 +11,6 @@ import (
 
 // Handler responds with the IP address of the request
 func Handler(w http.ResponseWriter, r *http.Request) {
-
-	path, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(path)
-
-	var files []string
-	err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
-		files = append(files, path)
-		return nil
-	})
-	if err != nil {
-		log.Println(err)
-	}
-
-	for _, file := range files {
-		fmt.Println(file)
-	}
 	// if only one expected
 	name := r.URL.Query().Get("name")
 	if name == "" {
@@ -51,8 +29,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	value, err := of.Script(`
 import FIND from 0x09a86f2493ce2e9d
 
-//Check the status of a fin user
-pub fun main(name: String) : Address? 
+pub fun main(name: String) : Address?  {
     return FIND.lookupAddress(name)
 }
 `).RunReturns()
