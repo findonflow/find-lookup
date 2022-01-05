@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/bjartek/overflow/overflow"
@@ -74,7 +75,12 @@ pub fun main(address: Address) : String?{
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", address, err), http.StatusNotFound)
 		return
 	}
-	w.Write([]byte(value.String()))
+	result, err := strconv.Unquote(value.String())
+	if err != nil {
+		result = value.String()
+	}
+
+	w.Write([]byte(result))
 
 }
 func lookup(name string, w http.ResponseWriter) {
@@ -98,7 +104,12 @@ pub fun main(name: String) : Address?  {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", name, err), http.StatusNotFound)
 		return
 	}
-	w.Write([]byte(value.String()))
+	result, err := strconv.Unquote(value.String())
+	if err != nil {
+		result = value.String()
+	}
+
+	w.Write([]byte(result))
 }
 
 func isValidAddress(h string) bool {
