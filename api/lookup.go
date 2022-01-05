@@ -27,7 +27,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	of := overflow.NewOverflowMainnet().Start()
 
 	value, err := of.Script(`
-import FIND from 0x09a86f2493ce2e9d
+import FIND from 0x097bafa4e0b48eef
 
 pub fun main(name: String) : Address?  {
     return FIND.lookupAddress(name)
