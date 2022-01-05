@@ -32,7 +32,7 @@ import FIND from 0x097bafa4e0b48eef
 pub fun main(name: String) : Address?  {
     return FIND.lookupAddress(name)
 }
-`).RunReturns()
+`).Args(of.Arguments().String(name)).RunReturns()
 
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", name, err), http.StatusNotFound)
