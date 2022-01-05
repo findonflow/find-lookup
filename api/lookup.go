@@ -25,7 +25,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	name = strings.TrimSuffix(name, ".find")
 
-	of := overflow.NewOverflowMainnet().Start()
+	of := overflow.NewOverflowMainnet().Config("flow.json").Start()
 
 	value, err := of.Script(`
 import FIND from 0x09a86f2493ce2e9d
