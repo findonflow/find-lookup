@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/bjartek/overflow/overflow"
@@ -20,6 +21,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(path)
 
+	var files []string
+	err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		files = append(files, path)
+		return nil
+	})
+	if err != nil {
+		log.Println(err)
+	}
+
+	for _, file := range files {
+		fmt.Println(file)
+	}
 	// if only one expected
 	name := r.URL.Query().Get("name")
 	if name == "" {
