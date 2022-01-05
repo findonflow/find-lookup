@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/lookup.go": {
+      "includeFiles": "flow.json"
+    }
+  }
+}
+
