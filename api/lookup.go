@@ -71,7 +71,7 @@ access(all) fun main(address: Address) : String?{
 	}
 	return name
 }
-`, overflow.WithArgs(address)).MarshalAs(&output)
+`, overflow.WithArg("address", address)).MarshalAs(&output)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", address, err), http.StatusNotFound)
 		return
@@ -96,7 +96,7 @@ import FIND from 0x097bafa4e0b48eef
 access(all) fun main(name: String) : Address?  {
     return FIND.lookupAddress(name)
 }
-`, overflow.WithArgs(name)).MarshalAs(&output)
+`, overflow.WithArg("name", name)).MarshalAs(&output)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", name, err), http.StatusNotFound)
 		return
