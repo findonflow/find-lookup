@@ -1,13 +1,15 @@
+/*
+* api handler
+ */
 package handler
 
 import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/bjartek/overflow/overflow"
+	"github.com/bjartek/overflow/v2"
 )
 
 // Handler responds with the IP address of the request
@@ -27,9 +29,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func reverse(address string, w http.ResponseWriter) {
-	of := overflow.NewOverflowMainnet().Start()
+	of := overflow.Overflow(overflow.WithNetwork("mainnet"))
 
-	value, err := of.Script(`
+	var output string
+	err := of.Script(`
 import FIND from 0x097bafa4e0b48eef
 import Profile from 0x097bafa4e0b48eef
 
@@ -68,17 +71,13 @@ access(all) fun main(address: Address) : String?{
 	}
 	return name
 }
-`).Args(of.Arguments().RawAccount(address)).RunReturns()
+`, overflow.WithArgs(address)).MarshalAs(&output)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", address, err), http.StatusNotFound)
 		return
 	}
-	result, err := strconv.Unquote(value.String())
-	if err != nil {
-		result = value.String()
-	}
 
-	w.Write([]byte(result))
+	w.Write([]byte(output))
 }
 
 func lookup(name string, w http.ResponseWriter) {
@@ -88,25 +87,22 @@ func lookup(name string, w http.ResponseWriter) {
 	}
 
 	name = strings.TrimSuffix(name, ".find")
-	of := overflow.NewOverflowMainnet().Start()
+	of := overflow.Overflow(overflow.WithNetwork("mainnet"))
 
-	value, err := of.Script(`
+	var output string
+	err := of.Script(`
 import FIND from 0x097bafa4e0b48eef
 
 access(all) fun main(name: String) : Address?  {
     return FIND.lookupAddress(name)
 }
-`).Args(of.Arguments().String(name)).RunReturns()
+`, overflow.WithArgs(name)).MarshalAs(&output)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", name, err), http.StatusNotFound)
 		return
 	}
-	result, err := strconv.Unquote(value.String())
-	if err != nil {
-		result = value.String()
-	}
 
-	w.Write([]byte(result))
+	w.Write([]byte(output))
 }
 
 func isValidAddress(h string) bool {
