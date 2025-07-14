@@ -24,7 +24,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Error(w, "Specify name or address query string", http.StatusInternalServerError)
-
 }
 
 func reverse(address string, w http.ResponseWriter) {
@@ -35,10 +34,10 @@ import FIND from 0x097bafa4e0b48eef
 import Profile from 0x097bafa4e0b48eef
 
 //Check the status of a fin user
-pub fun main(address: Address) : String?{
+access(all) fun main(address: Address) : String?{
 
 	let account=getAccount(address)
-	let leaseCap = account.getCapability<&FIND.LeaseCollection{FIND.LeaseCollectionPublic}>(FIND.LeasePublicPath)
+	let leaseCap = account.capabilities.get<&FIND.LeaseCollection>(FIND.LeasePublicPath)
 
 	if !leaseCap.check() {
 		return nil
@@ -70,7 +69,6 @@ pub fun main(address: Address) : String?{
 	return name
 }
 `).Args(of.Arguments().RawAccount(address)).RunReturns()
-
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", address, err), http.StatusNotFound)
 		return
@@ -81,8 +79,8 @@ pub fun main(address: Address) : String?{
 	}
 
 	w.Write([]byte(result))
-
 }
+
 func lookup(name string, w http.ResponseWriter) {
 	if isValidAddress(name) {
 		w.Write([]byte(name))
@@ -95,11 +93,10 @@ func lookup(name string, w http.ResponseWriter) {
 	value, err := of.Script(`
 import FIND from 0x097bafa4e0b48eef
 
-pub fun main(name: String) : Address?  {
+access(all) fun main(name: String) : Address?  {
     return FIND.lookupAddress(name)
 }
 `).Args(of.Arguments().String(name)).RunReturns()
-
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Cannot find %s error:%v", name, err), http.StatusNotFound)
 		return
